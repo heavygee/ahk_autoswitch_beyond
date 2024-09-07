@@ -59,3 +59,5 @@ If your path is different, you'll need to update the script accordingly.
 By integrating device name changes with AutoHotkey and incorporating a full restart of NVIDIA Broadcast, this script effectively handles the nuances of switching audio inputs when SteamVR starts or stops, automating a task that otherwise would be tedious and error-prone.
 
 Feel free to adjust the script based on your specific microphone device names and setup!
+
+P.S. there is an ICO file in the images folder if you want compile the AHK to an exe for ease of running at startup.
