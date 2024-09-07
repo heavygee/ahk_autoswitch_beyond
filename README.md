@@ -1,9 +1,9 @@
 # Auto-Switch Microphone Inputs for NVIDIA Broadcast with SteamVR
 
 ## Problem Overview
-For users who rely on NVIDIA Broadcast for audio processing both inside and outside of VR, there is a recurring issue where the microphone input needs to be changed automatically when transitioning between SteamVR and non-VR environments.
+For users who rely on NVIDIA Broadcast for audio processing both inside and outside of VR, there is a recurring issue where the microphone input needs to be changed when transitioning between SteamVR and non-VR environments.
 
-When in VR (i.e., using SteamVR), you will prefer to use the Beyond microphone. However, outside of VR, you might want to revert to a different, non-VR microphone. Manually changing this input device, in NVIDIA Broadcast every time is tedious. Using Banana Voicemeeter(sic) is one solution, as this can then control and combine microphone inputs, allowing you to "use both" mics all the time. This can lead to undesired audio effects however, and choosing only one input is cleaner.
+When in VR (i.e., using SteamVR), you will prefer to use the Beyond (or other headset) microphone. However, outside of VR, you might want to revert to a different, non-VR microphone. Manually changing this input device, in NVIDIA Broadcast every time is tedious. Using Banana Voicemeeter(sic) is one solution, as this can then control and combine microphone inputs, allowing you to "use both" mics all the time. This can lead to undesired audio effects however, and choosing only one input is cleaner.
 
 ### The Crux of the Problem
 We need a way to automatically:
