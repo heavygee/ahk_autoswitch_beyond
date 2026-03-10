@@ -43,20 +43,29 @@ jobs:
         run: |
           $inFile = "autoswitch mic for VR.ahk"
           $outFile = "autoswitch mic for VR.exe"
-          $compiler = "C:\Program Files\AutoHotkey\Compiler\Ahk2Exe.exe"
-          $base = "C:\Program Files\AutoHotkey\v2\AutoHotkey64.exe"
           $icon = Get-ChildItem -Path . -Filter *.ico -File | Select-Object -First 1
+          $compilerCandidates = @(
+            "C:\Program Files\AutoHotkey\Compiler\Ahk2Exe.exe",
+            "C:\ProgramData\chocolatey\lib\autohotkey\tools\Compiler\Ahk2Exe.exe",
+            "C:\ProgramData\chocolatey\bin\Ahk2Exe.exe"
+          )
+          $compiler = $compilerCandidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+          if (-not $compiler) {
+            $cmd = Get-Command Ahk2Exe.exe -ErrorAction SilentlyContinue
+            if ($cmd) {
+              $compiler = $cmd.Source
+            }
+          }
 
-          if (-not (Test-Path $compiler)) { throw "Ahk2Exe not found at $compiler" }
-          if (-not (Test-Path $base)) { throw "AutoHotkey64 base not found at $base" }
+          if (-not $compiler) { throw "Ahk2Exe not found in expected locations." }
           if (-not (Test-Path $inFile)) { throw "Input script not found: $inFile" }
 
           if ($null -ne $icon) {
             Write-Host "Using icon: $($icon.Name)"
-            & $compiler /in $inFile /out $outFile /base $base /icon $icon.FullName
+            & $compiler /in $inFile /out $outFile /icon $icon.FullName
           } else {
             Write-Host "No .ico file found in repo root - compiling with default icon."
-            & $compiler /in $inFile /out $outFile /base $base
+            & $compiler /in $inFile /out $outFile
           }
 
           if (-not (Test-Path $outFile)) { throw "Compilation failed: output EXE missing." }
