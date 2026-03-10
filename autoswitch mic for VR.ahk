@@ -6,11 +6,14 @@ global APP_CONFIG := LoadConfig()
 ; even when user is not actively using Virtual Desktop for VR streaming.
 global VD_PROCESS_NAMES := ["VirtualDesktop.Streamer.exe", "VirtualDesktop.Server.exe"]
 global IS_STANDDOWN := false
+global BROADCAST_UI_PATH := "C:\Program Files\NVIDIA Corporation\NVIDIA Broadcast\NVIDIA Broadcast UI.exe"
+global BROADCAST_VERSION_OK := true
 global TRAY_STATUS_ITEM := "Status: Active"
 if !FileExist(CONFIG_FILE) {
     SaveConfig(APP_CONFIG)
 }
 
+CheckNvidiaBroadcastVersion()
 InitializeTrayMenu()
 
 ResolveDeviceId(partialName, direction := "Render") {
@@ -165,13 +168,16 @@ IsVirtualDesktopRunning() {
 }
 
 UpdateStandDownState(force := false) {
-    global IS_STANDDOWN, TRAY_STATUS_ITEM
+    global IS_STANDDOWN, TRAY_STATUS_ITEM, BROADCAST_VERSION_OK
     newState := IsVirtualDesktopRunning()
     if (!force && newState = IS_STANDDOWN) {
         return
     }
     oldLabel := TRAY_STATUS_ITEM
-    if (newState) {
+    if (!BROADCAST_VERSION_OK) {
+        TRAY_STATUS_ITEM := "Status: Unsupported NVIDIA Broadcast version"
+        A_IconTip := "VR Audio Auto-Switch - UNSUPPORTED: requires NVIDIA Broadcast 1.4.x"
+    } else if (newState) {
         TRAY_STATUS_ITEM := "Status: Stand-down (Virtual Desktop is running)"
         A_IconTip := "VR Audio Auto-Switch - STAND-DOWN (Virtual Desktop running)"
     } else {
@@ -185,14 +191,38 @@ UpdateStandDownState(force := false) {
     IS_STANDDOWN := newState
 }
 
+CheckNvidiaBroadcastVersion() {
+    global BROADCAST_UI_PATH, BROADCAST_VERSION_OK
+    if !FileExist(BROADCAST_UI_PATH) {
+        BROADCAST_VERSION_OK := false
+        MsgBox "NVIDIA Broadcast UI executable was not found at:`n" BROADCAST_UI_PATH "`n`nThis tool requires NVIDIA Broadcast 1.4.x.", "NVIDIA Broadcast Requirement"
+        return false
+    }
+
+    version := FileGetVersion(BROADCAST_UI_PATH)
+    if !InStr(version, "1.4.") {
+        BROADCAST_VERSION_OK := false
+        MsgBox "Detected NVIDIA Broadcast version: " version "`n`nThis V2 tool currently supports NVIDIA Broadcast 1.4.x only.`nIf you need 2.1.0+, you are out of luck - this technique does not work with it.", "Unsupported NVIDIA Broadcast Version"
+        return false
+    }
+
+    BROADCAST_VERSION_OK := true
+    return true
+}
+
 ShowConfigGui(*) {
-    global APP_CONFIG
+    global APP_CONFIG, BROADCAST_VERSION_OK
     renderDevices := BuildUniqueDeviceList("Render")
     captureDevices := BuildUniqueDeviceList("Capture")
 
     cfgGui := Gui("+AlwaysOnTop", "VR Audio Config")
     cfgGui.SetFont("s10", "Segoe UI")
     cfgGui.AddText("w780", "Pick what you want while in VR vs on desktop. Advanced alias tuning is behind 'Advanced...'.")
+    if !BROADCAST_VERSION_OK {
+        cfgGui.SetFont("s10 cRed Bold", "Segoe UI")
+        cfgGui.AddText("w780 y+8", "NOT ACTIVE: This tool requires NVIDIA Broadcast 1.4.x. If you need 2.1.0+, this technique will not work.")
+        cfgGui.SetFont("s10 cDefault Norm", "Segoe UI")
+    }
     if IsVirtualDesktopRunning() {
         cfgGui.SetFont("s10 cRed Bold", "Segoe UI")
         cfgGui.AddText("w780 y+8", "NOT ACTIVE due to presence of Virtual Desktop which handles audio inputs/outputs in VR.")
@@ -241,7 +271,7 @@ ShowConfigGui(*) {
 }
 
 ShowAdvancedConfigGui(*) {
-    global APP_CONFIG
+    global APP_CONFIG, BROADCAST_VERSION_OK
     renderDevices := BuildUniqueDeviceList("Render")
     captureDevices := BuildUniqueDeviceList("Capture")
     broadcastCaptureDevices := FilterDeviceList(captureDevices, "Broadcast")
@@ -253,6 +283,11 @@ ShowAdvancedConfigGui(*) {
     cfgGui := Gui("+AlwaysOnTop", "VR Audio Config - Advanced")
     cfgGui.SetFont("s10", "Segoe UI")
     cfgGui.AddText("w780", "Power-user mode. Keep fallback aliases with |. These groups map directly to IN VR and ON DESKTOP behavior.")
+    if !BROADCAST_VERSION_OK {
+        cfgGui.SetFont("s10 cRed Bold", "Segoe UI")
+        cfgGui.AddText("w780 y+8", "NOT ACTIVE: This tool requires NVIDIA Broadcast 1.4.x. If you need 2.1.0+, this technique will not work.")
+        cfgGui.SetFont("s10 cDefault Norm", "Segoe UI")
+    }
     if (standDown) {
         cfgGui.SetFont("s10 cRed Bold", "Segoe UI")
         cfgGui.AddText("w780 y+8", "NOT ACTIVE due to presence of Virtual Desktop which handles audio inputs/outputs in VR.")
@@ -516,7 +551,10 @@ DetectHiddenWindows(true)
 OnProcessStartStop("vrmonitor.exe", SteamVRStarted, SteamVRStopped)
 
 SteamVRStarted() {
-    global APP_CONFIG, IS_STANDDOWN
+    global APP_CONFIG, IS_STANDDOWN, BROADCAST_VERSION_OK
+    if !BROADCAST_VERSION_OK {
+        return
+    }
     UpdateStandDownState()
     if IS_STANDDOWN {
         return
@@ -549,7 +587,10 @@ SteamVRStarted() {
 }
 
 SteamVRStopped() {
-    global APP_CONFIG, IS_STANDDOWN
+    global APP_CONFIG, IS_STANDDOWN, BROADCAST_VERSION_OK
+    if !BROADCAST_VERSION_OK {
+        return
+    }
     UpdateStandDownState()
     if IS_STANDDOWN {
         return

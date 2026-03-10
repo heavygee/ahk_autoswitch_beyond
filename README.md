@@ -8,6 +8,11 @@ This repo currently includes a SteamVR watcher script: `autoswitch mic for VR.ah
 - NVIDIA Broadcast v1.4.0.38 (required for this V2 workflow)
   - Download: [NVIDIA_Broadcast_Offline_Ada_v1.4.0.38.exe](https://international.download.nvidia.com/Windows/broadcast/1.4.0.38/NVIDIA_Broadcast_Offline_Ada_v1.4.0.38.exe)
 
+### Important Version Warning
+
+NVIDIA Broadcast `2.1.0` is currently out and this technique does not work with it.
+If you need `2.1.0+`, you are out of luck with this approach right now.
+
 It automates three things:
 
 - Windows default audio playback device
