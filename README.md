@@ -19,6 +19,13 @@ It automates three things:
 - Windows default communications playback device
 - NVIDIA Broadcast microphone source dropdown
 
+## Quick start
+
+1. Put `autoswitch mic for VR.exe` (or `.ahk`) beside `SoundVolumeView.exe` and `nircmd.exe`.
+2. Run it once.
+3. On first run, if `autoswitch mic for VR.ini` does not exist yet, the config window now opens automatically for onboarding.
+4. Pick your `Audio in VR` and `Audio on Desktop` targets, then click `Save`.
+
 ## Why this exists
 
 Windows has separate "default device" and "default communications device" routing, and a lot of apps - especially Discord - will use comms routing in ways that feel random if you only set one of them.

@@ -9,12 +9,16 @@ global IS_STANDDOWN := false
 global BROADCAST_UI_PATH := "C:\Program Files\NVIDIA Corporation\NVIDIA Broadcast\NVIDIA Broadcast UI.exe"
 global BROADCAST_VERSION_OK := true
 global TRAY_STATUS_ITEM := "Status: Active"
-if !FileExist(CONFIG_FILE) {
+global FIRST_RUN := !FileExist(CONFIG_FILE)
+if FIRST_RUN {
     SaveConfig(APP_CONFIG)
 }
 
 CheckNvidiaBroadcastVersion()
 InitializeTrayMenu()
+if FIRST_RUN {
+    SetTimer(ShowFirstRunOnboarding, -600)
+}
 
 ResolveDeviceId(partialName, direction := "Render") {
     svvPath := A_ScriptDir "\SoundVolumeView.exe"
@@ -157,6 +161,14 @@ TrayStatusNoop(*) {
     ; Intentionally empty: status line is informational only.
 }
 
+ShowFirstRunOnboarding() {
+    global FIRST_RUN
+    if !FIRST_RUN {
+        return
+    }
+    ShowConfigGui()
+}
+
 IsVirtualDesktopRunning() {
     global VD_PROCESS_NAMES
     for _, procName in VD_PROCESS_NAMES {
@@ -238,13 +250,22 @@ GetBroadcastProductVersionFromFile(filePath) {
 }
 
 ShowConfigGui(*) {
-    global APP_CONFIG, BROADCAST_VERSION_OK
+    global APP_CONFIG, BROADCAST_VERSION_OK, FIRST_RUN
     renderDevices := BuildUniqueDeviceList("Render")
     captureDevices := BuildUniqueDeviceList("Capture")
+    showOnboarding := FIRST_RUN
+    if showOnboarding {
+        FIRST_RUN := false
+    }
 
     cfgGui := Gui("+AlwaysOnTop", "VR Audio Config")
     cfgGui.SetFont("s10", "Segoe UI")
     cfgGui.AddText("w780", "Pick what you want while in VR vs on desktop. Advanced alias tuning is behind 'Advanced...'.")
+    if showOnboarding {
+        cfgGui.SetFont("s10 cBlue Bold", "Segoe UI")
+        cfgGui.AddText("w780 y+8", "First run setup: choose your VR/Desktop audio targets now, then click Save.")
+        cfgGui.SetFont("s10 cDefault Norm", "Segoe UI")
+    }
     if !BROADCAST_VERSION_OK {
         cfgGui.SetFont("s10 cRed Bold", "Segoe UI")
         cfgGui.AddText("w780 y+8", "NOT ACTIVE: This tool requires NVIDIA Broadcast 1.4.x. If you need 2.1.0+, this technique will not work.")
