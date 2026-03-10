@@ -81,8 +81,8 @@ The script prefers `SoundVolumeView.exe` (for unique device IDs), then falls bac
 
 Keep these files next to the script/exe:
 
-- `SoundVolumeView.exe`
-- `nircmd.exe`
+- `SoundVolumeView.exe` - [tool page](https://www.nirsoft.net/utils/sound_volume_view.html) - [direct download (x64 zip)](https://www.nirsoft.net/utils/soundvolumeview-x64.zip)
+- `nircmd.exe` - [tool page](https://www.nirsoft.net/utils/nircmd.html) - [direct download (zip)](https://www.nirsoft.net/utils/nircmd.zip)
 
 `SoundVolumeView.exe` is used first because it can target unique audio device IDs and avoid ambiguous labels like multiple `Speakers` devices.
 
