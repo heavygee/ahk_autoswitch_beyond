@@ -38,14 +38,20 @@ jobs:
         id: icon
         shell: pwsh
         run: |
-          $icon = Get-ChildItem -Path . -Filter *.ico -File | Select-Object -First 1
+          $icon = $null
+          if (Test-Path ".\images") {
+            $icon = Get-ChildItem -Path ".\images" -Filter *.ico -File | Sort-Object Name | Select-Object -First 1
+          }
+          if ($null -eq $icon) {
+            $icon = Get-ChildItem -Path . -Filter *.ico -File | Sort-Object Name | Select-Object -First 1
+          }
           if ($null -ne $icon) {
             "has=true" >> $env:GITHUB_OUTPUT
             "path=$($icon.FullName)" >> $env:GITHUB_OUTPUT
             Write-Host "Detected icon: $($icon.FullName)"
           } else {
             "has=false" >> $env:GITHUB_OUTPUT
-            Write-Host "No .ico found in repo root."
+            Write-Host "No .ico found in ./images or repo root."
           }
 
       - name: Compile EXE (default icon)
