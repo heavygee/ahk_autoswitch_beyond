@@ -34,42 +34,40 @@ jobs:
           git tag $tag
           git push origin $tag
 
-      - name: Install AutoHotkey
-        shell: pwsh
-        run: choco install autohotkey.portable --yes
-
-      - name: Compile EXE
+      - name: Detect ICO file
+        id: icon
         shell: pwsh
         run: |
-          $inFile = "autoswitch mic for VR.ahk"
-          $outFile = "autoswitch mic for VR.exe"
           $icon = Get-ChildItem -Path . -Filter *.ico -File | Select-Object -First 1
-          $compilerCandidates = @(
-            "C:\Program Files\AutoHotkey\Compiler\Ahk2Exe.exe",
-            "C:\ProgramData\chocolatey\lib\autohotkey\tools\Compiler\Ahk2Exe.exe",
-            "C:\ProgramData\chocolatey\lib\autohotkey.portable\tools\Compiler\Ahk2Exe.exe",
-            "C:\ProgramData\chocolatey\bin\Ahk2Exe.exe"
-          )
-          $compiler = $compilerCandidates | Where-Object { Test-Path $_ } | Select-Object -First 1
-          if (-not $compiler) {
-            $cmd = Get-Command Ahk2Exe.exe -ErrorAction SilentlyContinue
-            if ($cmd) {
-              $compiler = $cmd.Source
-            }
-          }
-
-          if (-not $compiler) { throw "Ahk2Exe not found in expected locations." }
-          if (-not (Test-Path $inFile)) { throw "Input script not found: $inFile" }
-
           if ($null -ne $icon) {
-            Write-Host "Using icon: $($icon.Name)"
-            & $compiler /in $inFile /out $outFile /icon $icon.FullName
+            "has=true" >> $env:GITHUB_OUTPUT
+            "path=$($icon.FullName)" >> $env:GITHUB_OUTPUT
+            Write-Host "Detected icon: $($icon.FullName)"
           } else {
-            Write-Host "No .ico file found in repo root - compiling with default icon."
-            & $compiler /in $inFile /out $outFile
+            "has=false" >> $env:GITHUB_OUTPUT
+            Write-Host "No .ico found in repo root."
           }
 
-          if (-not (Test-Path $outFile)) { throw "Compilation failed: output EXE missing." }
+      - name: Compile EXE (default icon)
+        if: steps.icon.outputs.has != 'true'
+        uses: benmusson/ahk2exe-action@v1
+        with:
+          in: .\autoswitch mic for VR.ahk
+          out: .\autoswitch mic for VR.exe
+          target: x64
+          ahk-tag: v2.0.18
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Compile EXE (custom icon)
+        if: steps.icon.outputs.has == 'true'
+        uses: benmusson/ahk2exe-action@v1
+        with:
+          in: .\autoswitch mic for VR.ahk
+          out: .\autoswitch mic for VR.exe
+          icon: ${{ steps.icon.outputs.path }}
+          target: x64
+          ahk-tag: v2.0.18
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Resolve release tag
         id: tag
