@@ -6,3 +6,6 @@ agent chats/
 *.code-workspace
 images/*~*
 HANDOFF.md
+autoswitch mic for VR.exe
+.specstory/*
+.cursorindexingignore

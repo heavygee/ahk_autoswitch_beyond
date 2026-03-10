@@ -1,0 +1,22 @@
+---
+description: Enforce single-runtime AHK workflow for this repo
+globs: **/*.ahk
+alwaysApply: false
+---
+
+# AutoHotkey Runtime Workflow
+
+When working on `.ahk` files in this repo:
+
+- Treat the compiled `.exe` as the primary runtime target.
+- Do not leave both the script interpreter (`AutoHotkey.exe` running `.ahk`) and compiled `.exe` running at the same time.
+- After substantive `.ahk` edits, compile to `autoswitch mic for VR.exe` using the repo icon at `images/beyond_nvidia.ico`.
+- After every compile, copy the `.exe` to `C:\Users\HeavyGee\Documents\AutoHotkey\autoswitch mic for VR.exe`.
+- Run the app from `C:\Users\HeavyGee\Documents\AutoHotkey` after compile/copy. Do not run the repo copy directly.
+- If a matching `.ahk` interpreter instance is running for the same script, stop only that matching interpreter process before relaunching `.exe`.
+- Do not kill unrelated AutoHotkey scripts.
+
+## Preferred Behavior
+
+- `autoswitch mic for VR.ahk` -> compile with `images/beyond_nvidia.ico` -> copy exe to `C:\Users\HeavyGee\Documents\AutoHotkey` -> run from there
+- If both tray icons exist (script + exe), keep only the `.exe` instance.
