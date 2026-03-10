@@ -5,3 +5,4 @@ svv_dump.csv
 agent chats/
 *.code-workspace
 images/*~*
+HANDOFF.md
