@@ -1,0 +1,64 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to create, e.g. v1.2.0"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  build-release:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+      - name: Create and push tag (manual runs)
+      if: github.event_name == 'workflow_dispatch'
+      shell: pwsh
+      run: |
+        $tag = "${{ github.event.inputs.tag }}"
+        if ([string]::IsNullOrWhiteSpace($tag)) {
+          throw "Tag input is required."
+        }
+        git tag $tag
+        git push origin $tag
+
+      - name: Install AutoHotkey
+      shell: pwsh
+      run: |
+        choco install autohotkey --yes
+
+      - name: Compile EXE
+      shell: pwsh
+      run: |
+        $inFile = "autoswitch mic for VR.ahk"
+        $outFile = "autoswitch mic for VR.exe"
+        $compiler = "C:\Program Files\AutoHotkey\Compiler\Ahk2Exe.exe"
+        $base = "C:\Program Files\AutoHotkey\v2\AutoHotkey64.exe"
+
+        if (-not (Test-Path $compiler)) { throw "Ahk2Exe not found at $compiler" }
+        if (-not (Test-Path $base)) { throw "AutoHotkey64 base not found at $base" }
+        if (-not (Test-Path $inFile)) { throw "Input script not found: $inFile" }
+
+        & $compiler /in $inFile /out $outFile /base $base
+        if (-not (Test-Path $outFile)) { throw "Compilation failed: output EXE missing." }
+
+      - name: Publish release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.tag || github.ref_name }}
+        files: |
+          autoswitch mic for VR.exe
+          autoswitch mic for VR.ahk
+          README.md

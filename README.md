@@ -1,63 +1,83 @@
-# Auto-Switch Microphone Inputs for NVIDIA Broadcast with SteamVR
+# AutoHotkey VR Audio Auto-Switch
 
-## Problem Overview
-For users who rely on NVIDIA Broadcast for audio processing both inside and outside of VR, there is a recurring issue where the microphone input needs to be changed automatically when transitioning between SteamVR and non-VR environments.
+This repo currently includes a SteamVR watcher script: `autoswitch mic for VR.ahk`.
 
-When in VR (i.e., using SteamVR), you will prefer to use the Beyond microphone. However, outside of VR, you might want to revert to a different, non-VR microphone. Manually changing this input device, in NVIDIA Broadcast every time is tedious. Using Banana Voicemeeter(sic) is one solution, as this can then control and combine microphone inputs, allowing you to "use both" mics all the time. This can lead to undesired audio effects however, and choosing only one input is cleaner.
+It automates three things:
 
-### The Crux of the Problem
-We need a way to automatically:
-1. Switch to the preferred microphone (e.g., "Beyond Mic") when SteamVR starts.
-2. Revert to the non-VR microphone when SteamVR stops.
+- Windows default audio playback device
+- Windows default communications playback device
+- NVIDIA Broadcast microphone source dropdown
 
-Moreover, NVIDIA Broadcast doesn't always handle these changes gracefully (at least, not with AHK). In fact, it often requires a **restart** to ensure that the user interface and settings are reset correctly, which adds to the complexity of the solution.
+## Why this exists
 
-## Solution: AutoHotkey v2 Script
+Windows has separate "default device" and "default communications device" routing, and a lot of apps - especially Discord - will use comms routing in ways that feel random if you only set one of them.
 
-### Key Steps:
-- We use **AutoHotkey v2** to automatically monitor the SteamVR process (`vrmonitor.exe`).
-- When SteamVR starts, the script:
-  1. **Kills and restarts NVIDIA Broadcast** to reset the interface.
-  2. **Switches to the "Beyond Mic"** or your preferred VR microphone.
-- When SteamVR stops, the script:
-  1. Restarts NVIDIA Broadcast.
-  2. **Switches to your non-VR microphone** (e.g., "USB Mic").
-  3. Closes the NVIDIA Broadcast window once the input has been successfully changed.
+So this script explicitly sets both, every time, to avoid half-switched audio.
 
-### Manual Preparation
-Before running the script, you'll need to:
-1. **Manually rename** both your VR microphone (e.g., "Beyond Mic") and your non-VR microphone (e.g., "USB Mic") in **Windows Sound Settings** to unique names. This allows the script to accurately switch between the two microphones based on their unique first letters. Yes, this is clunky, but it works.
-   - Example: Rename the VR mic to something like `YondBe` and the non-VR mic to `USB Mic`. Y, U. 
-   
-To rename the devices:
-- Open the **Recording** tab in the Sound Control Panel by pressing `Win + R`, typing:
-```control mmsys.cpl,,1```
-and pressing `Enter`.
-- Right-click the device(s) you want to rename (Beyond and your normal non-vr mic) and choose **Rename**.
+## Current behavior
 
-   
-2. Make sure you point the script to the correct **NVIDIA Broadcast executable**. The default path used is:
+When SteamVR starts:
 
-```C:\Program Files\NVIDIA Corporation\NVIDIA Broadcast\NVIDIA Broadcast UI.exe```
+- Windows default input and comms input -> `NVIDIA Broadcast`
+- NVIDIA Broadcast mic source -> item containing `Beyond`
+- Windows default output and comms output -> Beyond strap device (matched by aliases)
 
-If your path is different, you'll need to update the script accordingly.
+When SteamVR stops:
 
-### How to Use the Script
+- Windows default input and comms input remain -> `NVIDIA Broadcast`
+- NVIDIA Broadcast mic source -> item containing `USB audio CODEC`
+- Windows default output and comms output -> `SteelSeries Arctis 1 Wireless`
 
-1. **Download and Install AutoHotkey v2**: The script requires AutoHotkey v2 to function. You can download it from the [AutoHotkey website](https://www.autohotkey.com/).
+## Customize for your setup
 
-2. **Configure the Script**: In the provided `.ahk` script, make the following customizations:
- - **Device Names**: Ensure the `YondBe` and `USB Mic` names are correctly reflected. If your microphones have different names, you’ll need to update them in the script (look for where the `Send("Y")` and `Send("U")` commands are issued).
- - **NVIDIA Broadcast Path**: If your NVIDIA Broadcast installation is in a different location, update the path in the script where `Run()` is called to reflect your system's setup. The default path in the script is:
-   ```ahk
-   Run("C:\\Program Files\\NVIDIA Corporation\\NVIDIA Broadcast\\NVIDIA Broadcast UI.exe")
-   ```
+You can configure this without touching code:
 
-3. **Run the Script**: Once everything is configured, simply run the `.ahk` file. The script will monitor for the SteamVR process and switch microphone inputs automatically when VR is started or stopped.
+1. Right-click the tray icon for `autoswitch mic for VR.exe`
+2. Click `Configure VR Audio Targets...`
+3. In the main screen, use the left `Audio in VR` panel and right `Audio on Desktop` panel to pick:
+   - Input
+   - Output
+4. Save
 
-### Why This Works
-By integrating device name changes with AutoHotkey and incorporating a full restart of NVIDIA Broadcast, this script effectively handles the nuances of switching audio inputs when SteamVR starts or stops, automating a task that otherwise would be tedious and error-prone.
+Use `Advanced...` only if you want alias-level tuning and fallback patterns.
 
-Feel free to adjust the script based on your specific microphone device names and setup!
+Advanced mode is grouped by:
 
-P.S. there is an ICO file in the images folder if you want compile the AHK to an exe for ease of running at startup.
+- `In VR`
+- `On Desktop`
+- Shared NVIDIA Broadcast input defaults
+
+Settings are stored in `autoswitch mic for VR.ini` next to the script/exe.
+
+Use stable substrings, not exact full names. Windows may prepend changing prefixes like `2-` or `3-`.
+
+Alias fields support pipe-delimited fallback values, for example:
+
+- `Beyond|YondBe|Strap`
+- `SteelSeries Arctis 1 Wireless|Arctis 1 Wireless|SteelSeries`
+
+## Virtual Desktop Stand-down
+
+If Virtual Desktop is running, this tool intentionally stands down and does not change audio routing.
+
+- Tray status changes to stand-down mode
+- Config windows show a loud warning that the tool is not active
+- This avoids fighting Virtual Desktop, which already manages VR audio paths
+
+## Tooling
+
+The script prefers `SoundVolumeView.exe` (for unique device IDs), then falls back to `nircmd.exe`.
+
+Keep these files next to the script/exe:
+
+- `SoundVolumeView.exe`
+- `nircmd.exe`
+
+`SoundVolumeView.exe` is used first because it can target unique audio device IDs and avoid ambiguous labels like multiple `Speakers` devices.
+
+## Runtime workflow
+
+Use the compiled `.exe` as the runtime target, not both `.ahk` and `.exe` simultaneously.
+
+- Good: only `autoswitch mic for VR.exe` running
+- Bad: both `AutoHotkey.exe` (script) and `autoswitch mic for VR.exe` running
