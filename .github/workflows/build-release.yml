@@ -36,7 +36,7 @@ jobs:
 
       - name: Install AutoHotkey
         shell: pwsh
-        run: choco install autohotkey --yes
+        run: choco install autohotkey.portable --yes
 
       - name: Compile EXE
         shell: pwsh
@@ -47,6 +47,7 @@ jobs:
           $compilerCandidates = @(
             "C:\Program Files\AutoHotkey\Compiler\Ahk2Exe.exe",
             "C:\ProgramData\chocolatey\lib\autohotkey\tools\Compiler\Ahk2Exe.exe",
+            "C:\ProgramData\chocolatey\lib\autohotkey.portable\tools\Compiler\Ahk2Exe.exe",
             "C:\ProgramData\chocolatey\bin\Ahk2Exe.exe"
           )
           $compiler = $compilerCandidates | Where-Object { Test-Path $_ } | Select-Object -First 1
