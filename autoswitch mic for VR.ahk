@@ -193,14 +193,17 @@ UpdateStandDownState(force := false) {
 
 CheckNvidiaBroadcastVersion() {
     global BROADCAST_UI_PATH, BROADCAST_VERSION_OK
+    version := GetInstalledNvidiaBroadcastVersion()
+    if (version = "") {
+        version := GetBroadcastProductVersionFromFile(BROADCAST_UI_PATH)
+    }
     if !FileExist(BROADCAST_UI_PATH) {
         BROADCAST_VERSION_OK := false
         MsgBox "NVIDIA Broadcast UI executable was not found at:`n" BROADCAST_UI_PATH "`n`nThis tool requires NVIDIA Broadcast 1.4.x.", "NVIDIA Broadcast Requirement"
         return false
     }
 
-    version := FileGetVersion(BROADCAST_UI_PATH)
-    if !InStr(version, "1.4.") {
+    if !IsBroadcastVersionSupported(version) {
         BROADCAST_VERSION_OK := false
         MsgBox "Detected NVIDIA Broadcast version: " version "`n`nThis V2 tool currently supports NVIDIA Broadcast 1.4.x only.`nIf you need 2.1.0+, you are out of luck - this technique does not work with it.", "Unsupported NVIDIA Broadcast Version"
         return false
@@ -208,6 +211,30 @@ CheckNvidiaBroadcastVersion() {
 
     BROADCAST_VERSION_OK := true
     return true
+}
+
+IsBroadcastVersionSupported(version) {
+    return (SubStr(version, 1, 4) = "1.4.")
+}
+
+GetInstalledNvidiaBroadcastVersion() {
+    psCommand := "(Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*' -ErrorAction SilentlyContinue | " .
+        "Where-Object { $_.DisplayName -like 'NVIDIA Broadcast *' -and $_.DisplayVersion } | " .
+        "Sort-Object DisplayVersion -Descending | Select-Object -First 1 -ExpandProperty DisplayVersion)"
+    shell := ComObject("WScript.Shell")
+    exec := shell.Exec(Format('{} /c powershell -NoProfile -Command "{}"', A_ComSpec, psCommand))
+    return Trim(exec.StdOut.ReadAll(), "`r`n`t ")
+}
+
+GetBroadcastProductVersionFromFile(filePath) {
+    if !FileExist(filePath) {
+        return ""
+    }
+    escapedPath := StrReplace(filePath, "'", "''")
+    psCommand := "$v=[System.Diagnostics.FileVersionInfo]::GetVersionInfo('" escapedPath "'); $v.ProductVersion"
+    shell := ComObject("WScript.Shell")
+    exec := shell.Exec(Format('{} /c powershell -NoProfile -Command "{}"', A_ComSpec, psCommand))
+    return Trim(exec.StdOut.ReadAll(), "`r`n`t ")
 }
 
 ShowConfigGui(*) {
