@@ -2,3 +2,6 @@ autoswitch mic for VR.ini
 *.zip
 svv_dump.csv
 *.tmp
+agent chats/
+*.code-workspace
+images/*~*
