@@ -1,6 +1,12 @@
-# AutoHotkey VR Audio Auto-Switch
+# AutoHotkey VR Audio Auto-Switch V2
 
 This repo currently includes a SteamVR watcher script: `autoswitch mic for VR.ahk`.
+
+## Requirements
+
+- AutoHotkey v2
+- NVIDIA Broadcast v1.4.0.38 (required for this V2 workflow)
+  - Download: [NVIDIA_Broadcast_Offline_Ada_v1.4.0.38.exe](https://international.download.nvidia.com/Windows/broadcast/1.4.0.38/NVIDIA_Broadcast_Offline_Ada_v1.4.0.38.exe)
 
 It automates three things:
 
