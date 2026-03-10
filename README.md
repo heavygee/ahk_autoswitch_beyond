@@ -26,6 +26,16 @@ It automates three things:
 3. On first run, if `autoswitch mic for VR.ini` does not exist yet, the config window now opens automatically for onboarding.
 4. Pick your `Audio in VR` and `Audio on Desktop` targets, then click `Save`.
 
+## VR Audio Config UI
+
+Main config window:
+
+![VR Audio Config](images/screenshot.png)
+
+Advanced config window:
+
+![VR Audio Config Advanced](images/screenshot_advanced.png)
+
 ## Build and run (local)
 
 - Compile from repo root with:
