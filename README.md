@@ -26,6 +26,14 @@ It automates three things:
 3. On first run, if `autoswitch mic for VR.ini` does not exist yet, the config window now opens automatically for onboarding.
 4. Pick your `Audio in VR` and `Audio on Desktop` targets, then click `Save`.
 
+## Build and run (local)
+
+- Compile from repo root with:
+  - `.\build-exe.ps1`
+  - or one-click wrapper: `.\build-and-run.bat`
+- This build script always uses `images/beyond_nvidia.ico` for the EXE icon.
+- Deploy and run the compiled EXE from your own chosen runtime folder.
+
 ## Why this exists
 
 Windows has separate "default device" and "default communications device" routing, and a lot of apps - especially Discord - will use comms routing in ways that feel random if you only set one of them.
