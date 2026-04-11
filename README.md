@@ -37,7 +37,7 @@ NVIDIA may stop hosting old installers. Keep a **personal copy** of the v1 offli
 
 ## Quick start
 
-1. Put `autoswitch mic for VR.exe` (or `.ahk`) beside `SoundVolumeView.exe` and `nircmd.exe`.
+1. Put `autoswitch mic for VR.exe` (or `.ahk`) beside [`SoundVolumeView.exe`](https://www.nirsoft.net/utils/soundvolumeview-x64.zip) and [`nircmd.exe`](https://www.nirsoft.net/utils/nircmd.zip) (download each zip from NirSoft, extract the executables next to the script; [SoundVolumeView tool page](https://www.nirsoft.net/utils/sound_volume_view.html), [NirCmd tool page](https://www.nirsoft.net/utils/nircmd.html)).
 2. Run it once.
 3. On first run, if `autoswitch mic for VR.ini` does not exist yet, the config window now opens automatically for onboarding.
 4. Pick your `Audio in VR` and `Audio on Desktop` targets, then click `Save`.
@@ -118,14 +118,14 @@ If Virtual Desktop is running, this tool intentionally stands down and does not 
 
 ## Tooling
 
-The script prefers `SoundVolumeView.exe` (for unique device IDs), then falls back to `nircmd.exe`.
+The script prefers [`SoundVolumeView.exe`](https://www.nirsoft.net/utils/soundvolumeview-x64.zip) ([tool page](https://www.nirsoft.net/utils/sound_volume_view.html)) for unique device IDs, then falls back to [`nircmd.exe`](https://www.nirsoft.net/utils/nircmd.zip) ([tool page](https://www.nirsoft.net/utils/nircmd.html)).
 
 Keep these files next to the script/exe:
 
-- `SoundVolumeView.exe` - [tool page](https://www.nirsoft.net/utils/sound_volume_view.html) - [direct download (x64 zip)](https://www.nirsoft.net/utils/soundvolumeview-x64.zip)
-- `nircmd.exe` - [tool page](https://www.nirsoft.net/utils/nircmd.html) - [direct download (zip)](https://www.nirsoft.net/utils/nircmd.zip)
+- [`SoundVolumeView.exe`](https://www.nirsoft.net/utils/soundvolumeview-x64.zip) - [tool page](https://www.nirsoft.net/utils/sound_volume_view.html)
+- [`nircmd.exe`](https://www.nirsoft.net/utils/nircmd.zip) - [tool page](https://www.nirsoft.net/utils/nircmd.html)
 
-`SoundVolumeView.exe` is used first because it can target unique audio device IDs and avoid ambiguous labels like multiple `Speakers` devices.
+[`SoundVolumeView.exe`](https://www.nirsoft.net/utils/soundvolumeview-x64.zip) is used first because it can target unique audio device IDs and avoid ambiguous labels like multiple `Speakers` devices.
 
 ## Git LFS
 
