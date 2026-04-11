@@ -1,23 +1,43 @@
-# AutoHotkey VR Audio Auto-Switch V2
+# SteamVR + NVIDIA Broadcast mic source sync
 
-This repo currently includes a SteamVR watcher script: `autoswitch mic for VR.ahk`.
+AutoHotkey v2 script: `autoswitch mic for VR.ahk`. It watches SteamVR and keeps **NVIDIA Broadcast v1**'s **microphone source dropdown** aligned with VR vs desktop use, while also setting Windows default and communications devices where needed (for example Discord splitting default vs comms).
+
+**Repository:** `nvbroadcast-steamvr-sync`
+
+**Suggested GitHub description** (About field):
+
+> SteamVR-triggered automation for NVIDIA Broadcast v1 mic source + Windows audio defaults. Requires Broadcast 1.x; not compatible with Broadcast 2.x.
+
+## Why this exists (the actual novelty)
+
+- **SteamVR already exposes VR session audio settings** for many setups. If your only problem were picking headset vs speakers, you would not need this repo.
+- **Generic "audio switcher" tools** are everywhere. They are great at flipping Windows endpoints. They do not reliably drive **Broadcast's own UI state** - specifically the **mic source** list inside Broadcast.
+- **NVIDIA Broadcast is the awkward piece**: it sits between physical mics and apps. When you enter or leave VR, you often need Broadcast to point at a different physical input. Broadcast does not follow SteamVR the way endpoints do, so you end up with **Broadcast and Windows disagreeing** unless something updates Broadcast explicitly.
+
+This tool exists to automate **that Broadcast integration**, with SteamVR start/stop as the trigger, plus the Windows default/comms tweaks that tend to matter for real sessions (especially comms routing).
 
 ## Requirements
 
 - AutoHotkey v2
-- NVIDIA Broadcast v1.4.0.38 (required for this V2 workflow)
-  - Download: [NVIDIA_Broadcast_Offline_Ada_v1.4.0.38.exe](https://international.download.nvidia.com/Windows/broadcast/1.4.0.38/NVIDIA_Broadcast_Offline_Ada_v1.4.0.38.exe)
+- **NVIDIA Broadcast v1** - this workflow targets the v1 app only.
 
-### Important Version Warning
+  Download (official): [NVIDIA_Broadcast_Offline_Ada_v1.4.0.38.exe](https://international.download.nvidia.com/Windows/broadcast/1.4.0.38/NVIDIA_Broadcast_Offline_Ada_v1.4.0.38.exe)
 
-NVIDIA Broadcast `2.1.0` is currently out and this technique does not work with it.
-If you need `2.1.0+`, you are out of luck with this approach right now.
+### Broadcast 2.x
 
-It automates three things:
+**NVIDIA Broadcast 2.x is not supported.** The automation approach used here does not work with Broadcast 2.x, so this project effectively **depends on staying on Broadcast v1** for as long as you use it.
+
+If you require Broadcast 2.x, treat this tool as a dead end until someone finds a supported approach (do not expect it).
+
+### If NVIDIA stops hosting v1
+
+NVIDIA may stop hosting old installers. Keep a **personal copy** of the v1 offline installer from the official link above, plus a **SHA-256** checksum if you want to verify copies later.
+
+## What it automates
 
 - Windows default audio playback device
 - Windows default communications playback device
-- NVIDIA Broadcast microphone source dropdown
+- **NVIDIA Broadcast microphone source** (dropdown selection)
 
 ## Quick start
 
@@ -44,13 +64,11 @@ Advanced config window:
 - This build script always uses `images/beyond_nvidia.ico` for the EXE icon.
 - Deploy and run the compiled EXE from your own chosen runtime folder.
 
-## Why this exists
+## Windows default vs communications
 
-Windows has separate "default device" and "default communications device" routing, and a lot of apps - especially Discord - will use comms routing in ways that feel random if you only set one of them.
+Windows separates "default device" and "default communications device." Many apps (notably Discord) use comms routing in ways that feel random if you only set one of them. This script sets **both** when it applies Windows-side changes, to avoid half-switched audio.
 
-So this script explicitly sets both, every time, to avoid half-switched audio.
-
-## Current behavior
+## Example behavior (defaults in this project)
 
 When SteamVR starts:
 
@@ -63,6 +81,8 @@ When SteamVR stops:
 - Windows default input and comms input remain -> `NVIDIA Broadcast`
 - NVIDIA Broadcast mic source -> item containing `USB audio CODEC`
 - Windows default output and comms output -> `SteelSeries Arctis 1 Wireless`
+
+Your machine will differ - configure via the UI and INI.
 
 ## Customize for your setup
 
@@ -92,7 +112,7 @@ Alias fields support pipe-delimited fallback values, for example:
 - `Beyond|YondBe|Strap`
 - `SteelSeries Arctis 1 Wireless|Arctis 1 Wireless|SteelSeries`
 
-## Virtual Desktop Stand-down
+## Virtual Desktop stand-down
 
 If Virtual Desktop is running, this tool intentionally stands down and does not change audio routing.
 
@@ -111,3 +131,8 @@ Keep these files next to the script/exe:
 
 `SoundVolumeView.exe` is used first because it can target unique audio device IDs and avoid ambiguous labels like multiple `Speakers` devices.
 
+## Git LFS
+
+This repository uses Git LFS for large binary archives. After cloning, run `git lfs pull` if you need full LFS objects locally. Cloning without Git LFS still yields the AutoHotkey sources; release builds do not depend on LFS objects.
+
+Redistribution of NVIDIA software may be restricted by NVIDIA's license; treat any in-repo copy as archival backup only, not a distribution channel.
