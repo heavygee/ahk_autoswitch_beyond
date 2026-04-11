@@ -2,11 +2,11 @@
 
 AutoHotkey v2 script: `autoswitch mic for VR.ahk`. It watches SteamVR and keeps **NVIDIA Broadcast v1**'s **microphone source dropdown** aligned with VR vs desktop use, while also setting Windows default and communications devices where needed (for example Discord splitting default vs comms).
 
-**Repository:** `nvbroadcast-steamvr-sync`
+**GitHub:** `introVRt-Lounge/nvbroadcast-steamvr-sync` (default branch `main`)
 
-**Suggested GitHub description** (About field):
+Clone (SSH, heavygee key via `github-hg`):
 
-> SteamVR-triggered automation for NVIDIA Broadcast v1 mic source + Windows audio defaults. Requires Broadcast 1.x; not compatible with Broadcast 2.x.
+`git clone git@github-hg:introVRt-Lounge/nvbroadcast-steamvr-sync.git`
 
 ## Why this exists (the actual novelty)
 
