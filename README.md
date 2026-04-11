@@ -126,9 +126,3 @@ Keep these files next to the script/exe:
 - [`nircmd.exe`](https://www.nirsoft.net/utils/nircmd.zip) - [tool page](https://www.nirsoft.net/utils/nircmd.html)
 
 [`SoundVolumeView.exe`](https://www.nirsoft.net/utils/soundvolumeview-x64.zip) is used first because it can target unique audio device IDs and avoid ambiguous labels like multiple `Speakers` devices.
-
-## Git LFS
-
-This repository uses Git LFS for large binary archives. After cloning, run `git lfs pull` if you need full LFS objects locally. Cloning without Git LFS still yields the AutoHotkey sources; release builds do not depend on LFS objects.
-
-Redistribution of NVIDIA software may be restricted by NVIDIA's license; treat any in-repo copy as archival backup only, not a distribution channel.
